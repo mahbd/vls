@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(newComment, { status: 201 });
   } catch (error) {
+    console.error('Error creating comment:', error);
     return NextResponse.json({ message: 'Something went wrong.' }, { status: 500 });
   }
 }
