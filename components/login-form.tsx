@@ -18,14 +18,25 @@ export function LoginForm({ isSecureMode }: LoginFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
-    const endpoint = isSecureMode ? '/api/auth/login-secure' : '/api/auth/login-vulnerable';
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    });
-    const data = await res.json();
-    setMessage(`API Response: ${data.message}`);
+    
+    try {
+      const endpoint = isSecureMode ? '/api/auth/login-secure' : '/api/auth/login-vulnerable';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      setMessage(`API Response: ${data.message || 'No message received'}`);
+    } catch (error) {
+      console.error('Login error:', error);
+      setMessage(`Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
+    }
   };
 
   const sqlInjectionExample = `' OR '1'='1`;
