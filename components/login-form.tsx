@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { trackLoginAttempt, trackVulnerabilityDemo } from '@/lib/analytics';
 
 interface LoginFormProps {
   isSecureMode: boolean;
@@ -21,6 +22,18 @@ export function LoginForm({ isSecureMode }: LoginFormProps) {
     
     try {
       const endpoint = isSecureMode ? '/api/auth/login-secure' : '/api/auth/login-vulnerable';
+      
+      // Check if this looks like an SQL injection attempt
+      const sqlInjectionPattern = /('|--|union|select|or\s+.+=.+)/i;
+      const isSqlInjectionAttempt = sqlInjectionPattern.test(password);
+      
+      if (isSqlInjectionAttempt && !isSecureMode) {
+        trackVulnerabilityDemo('sql_injection', { 
+          payload_detected: true,
+          mode: 'vulnerable'
+        });
+      }
+      
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -32,9 +45,15 @@ export function LoginForm({ isSecureMode }: LoginFormProps) {
       }
       
       const data = await res.json();
+      const success = res.status === 200;
+      
+      // Track login attempt
+      trackLoginAttempt(success, isSecureMode);
+      
       setMessage(`API Response: ${data.message || 'No message received'}`);
     } catch (error) {
       console.error('Login error:', error);
+      trackLoginAttempt(false, isSecureMode);
       setMessage(`Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   };

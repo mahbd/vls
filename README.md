@@ -60,9 +60,11 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 * `POST /api/auth/login-vulnerable`
     * Logs a user in using a raw SQL query. **Vulnerable to SQLi.**
     * **Body**: `{ "username": "admin", "password": "' OR '1'='1" }`
+    * **Security Features**: Logs suspicious SQL injection patterns for educational analysis
 * `POST /api/auth/login-secure`
     * Logs a user in using Prisma's query engine (prepared statements). **Secure.**
     * **Body**: `{ "username": "admin", "password": "password123" }`
+    * **Security Features**: HTTP-only secure cookies, login attempt logging
 
 ### Comments
 
@@ -71,9 +73,30 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 * `POST /api/comments/post-vulnerable`
     * Adds a new comment. **Vulnerable to stored XSS.**
     * **Body**: `{ "content": "<script>alert('XSS!')</script>" }`
+    * **Security Features**: Logs suspicious XSS patterns for educational analysis
 * `POST /api/comments/post-secure`
     * Adds a new comment after sanitizing input. **Secure.**
     * **Body**: `{ "content": "This is a safe comment." }`
+    * **Security Features**: DOMPurify server-side sanitization, XSS attempt logging
+* `GET /api/security/logs`
+    * Retrieves security event logs for educational analysis
+    * **Query Parameters**: `type` (sql_injection, xss_attempt, login_attempt), `minutes` (time filter)
+
+---
+
+## API Documentation
+
+For detailed API documentation including request/response formats, security features, and test payloads:
+
+* **Comprehensive Documentation**: See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+* **Postman Collection**: Import [postman_collection.json](./postman_collection.json) for interactive testing
+* **Test Endpoints**: Use the provided collection to test both vulnerable and secure endpoints
+
+### Quick Test Setup
+1. Start the development server: `npm run dev`
+2. Import the Postman collection from `postman_collection.json`
+3. Use the pre-configured requests to test SQL injection and XSS vulnerabilities
+4. Monitor security logs at `/api/security/logs`
 
 ---
 
@@ -83,7 +106,38 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 * **XSS Mitigation**:
     * **Output Encoding**: React renders text by default, preventing raw HTML from being injected into the DOM.
     * **Content Security Policy (CSP)**: A strict CSP header is set via middleware to block inline scripts and limit script sources.
-* **Secure Cookies**: If implementing sessions, use `HttpOnly`, `Secure`, and `SameSite` attributes.
+    * **Server-side Sanitization**: DOMPurify is used in secure endpoints for defense-in-depth protection.
+* **Secure Cookies**: HTTP-only, secure, and SameSite cookies for session management.
+* **Security Headers**: Comprehensive security headers via Next.js middleware:
+    * Content-Security-Policy
+    * X-Frame-Options 
+    * X-Content-Type-Options
+    * Referrer-Policy
+    * Permissions-Policy
+* **Structured Logging**: All security events (SQLi attempts, XSS attempts, login attempts) are logged with detailed metadata for educational analysis.
+
+---
+
+## Analytics Setup
+
+The application uses **Google Analytics 4** for tracking educational usage patterns:
+
+* **Tool Used**: react-ga4 library for Google Analytics integration
+* **What is Tracked** (anonymized):
+    * Vulnerability demonstration attempts (SQL injection, XSS)
+    * Security mode toggles (vulnerable ↔ secure)
+    * Login success/failure rates
+    * Comment submission patterns
+    * Page views and user interactions
+
+**Privacy**: No sensitive data or personal information is tracked. All analytics focus on educational usage patterns to improve the learning experience.
+
+To enable analytics:
+1. Create a Google Analytics 4 property
+2. Add your tracking ID to `.env.local`:
+   ```
+   NEXT_PUBLIC_GA_TRACKING_ID=G-XXXXXXXXXX
+   ```
 
 ---
 

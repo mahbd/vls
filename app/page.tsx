@@ -3,11 +3,18 @@
 import { useState } from 'react';
 import { LoginForm } from '@/components/login-form';
 import { CommentsSection } from '@/components/comments-section';
+import { SecurityDashboard } from '@/components/security-dashboard';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { trackSecurityModeToggle } from '@/lib/analytics';
 
 export default function HomePage() {
   const [isSecureMode, setIsSecureMode] = useState(false);
+
+  const handleSecurityModeToggle = (checked: boolean) => {
+    setIsSecureMode(checked);
+    trackSecurityModeToggle(checked);
+  };
 
   return (
     <main className="container mx-auto p-4 md:p-8 bg-background text-foreground min-h-screen">
@@ -25,16 +32,20 @@ export default function HomePage() {
         <Switch
           id="security-mode"
           checked={isSecureMode}
-          onCheckedChange={setIsSecureMode}
+          onCheckedChange={handleSecurityModeToggle}
         />
         <Label htmlFor="security-mode" className="text-lg font-medium text-green-500">
           Secure Mode
         </Label>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-2 gap-8 mb-8">
         <LoginForm isSecureMode={isSecureMode} />
         <CommentsSection isSecureMode={isSecureMode} />
+      </div>
+
+      <div className="mt-8">
+        <SecurityDashboard />
       </div>
     </main>
   );

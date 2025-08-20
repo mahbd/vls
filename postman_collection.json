@@ -1,0 +1,357 @@
+{
+  "info": {
+    "name": "Web Vulnerability Showcase Portal",
+    "description": "API collection for testing SQL injection and XSS vulnerabilities in a controlled educational environment.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login (Vulnerable) - Normal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login-vulnerable",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login-vulnerable"]
+            },
+            "description": "Normal login attempt with valid credentials"
+          }
+        },
+        {
+          "name": "Login (Vulnerable) - SQL Injection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"' OR '1'='1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login-vulnerable",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login-vulnerable"]
+            },
+            "description": "SQL injection attack bypassing authentication"
+          }
+        },
+        {
+          "name": "Login (Vulnerable) - SQL Injection Union",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"' UNION SELECT 1,2,3--\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login-vulnerable",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login-vulnerable"]
+            },
+            "description": "SQL injection with UNION statement"
+          }
+        },
+        {
+          "name": "Login (Secure) - Normal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login-secure",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login-secure"]
+            },
+            "description": "Login using secure endpoint with prepared statements"
+          }
+        },
+        {
+          "name": "Login (Secure) - SQL Injection Attempt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"' OR '1'='1\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login-secure",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login-secure"]
+            },
+            "description": "SQL injection attempt against secure endpoint (should fail)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comments",
+      "item": [
+        {
+          "name": "Get All Comments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/comments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments"]
+            },
+            "description": "Retrieve all comments from the database"
+          }
+        },
+        {
+          "name": "Post Comment (Vulnerable) - Normal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"This is a normal comment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/post-vulnerable",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "post-vulnerable"]
+            },
+            "description": "Post a normal comment to vulnerable endpoint"
+          }
+        },
+        {
+          "name": "Post Comment (Vulnerable) - XSS Script",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"<script>alert('XSS Attack!')</script>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/post-vulnerable",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "post-vulnerable"]
+            },
+            "description": "XSS attack using script tag"
+          }
+        },
+        {
+          "name": "Post Comment (Vulnerable) - XSS Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"<img src=\\\"x\\\" onerror=\\\"alert('XSS via Image!')\\\" />\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/post-vulnerable",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "post-vulnerable"]
+            },
+            "description": "XSS attack using image onerror event"
+          }
+        },
+        {
+          "name": "Post Comment (Vulnerable) - XSS SVG",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"<svg onload=\\\"alert('XSS via SVG!')\\\" />\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/post-vulnerable",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "post-vulnerable"]
+            },
+            "description": "XSS attack using SVG onload event"
+          }
+        },
+        {
+          "name": "Post Comment (Secure) - Normal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"This is a safe comment\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/post-secure",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "post-secure"]
+            },
+            "description": "Post a comment to secure endpoint with sanitization"
+          }
+        },
+        {
+          "name": "Post Comment (Secure) - XSS Attempt",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"<script>alert('This should be sanitized!')</script>\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/comments/post-secure",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "comments", "post-secure"]
+            },
+            "description": "XSS attempt against secure endpoint (should be sanitized)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Security Monitoring",
+      "item": [
+        {
+          "name": "Get All Security Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/security/logs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "security", "logs"]
+            },
+            "description": "Retrieve all security event logs"
+          }
+        },
+        {
+          "name": "Get SQL Injection Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/security/logs?type=sql_injection",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "security", "logs"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "sql_injection"
+                }
+              ]
+            },
+            "description": "Retrieve only SQL injection attempt logs"
+          }
+        },
+        {
+          "name": "Get XSS Attempt Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/security/logs?type=xss_attempt",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "security", "logs"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "xss_attempt"
+                }
+              ]
+            },
+            "description": "Retrieve only XSS attempt logs"
+          }
+        },
+        {
+          "name": "Get Recent Logs (30 minutes)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/security/logs?minutes=30",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "security", "logs"],
+              "query": [
+                {
+                  "key": "minutes",
+                  "value": "30"
+                }
+              ]
+            },
+            "description": "Retrieve security logs from the last 30 minutes"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "description": "Base URL for the vulnerability showcase portal"
+    }
+  ]
+}

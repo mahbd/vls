@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { trackCommentSubmission, trackVulnerabilityDemo } from '@/lib/analytics';
 
 interface Comment {
   id: number;
@@ -33,12 +34,36 @@ export function CommentsSection({ isSecureMode }: CommentsSectionProps) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+    
+    // Check if comment contains XSS payload
+    const xssPatterns = [
+      /<script/i,
+      /<iframe/i,
+      /javascript:/i,
+      /on\w+\s*=/i,
+      /<img[^>]*onerror/i,
+      /<svg[^>]*onload/i,
+    ];
+    
+    const hasXssPayload = xssPatterns.some(pattern => pattern.test(newComment));
+    
+    if (hasXssPayload && !isSecureMode) {
+      trackVulnerabilityDemo('xss', {
+        payload_detected: true,
+        mode: 'vulnerable'
+      });
+    }
+    
     const endpoint = isSecureMode ? '/api/comments/post-secure' : '/api/comments/post-vulnerable';
     await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: newComment }),
     });
+    
+    // Track comment submission
+    trackCommentSubmission(isSecureMode, hasXssPayload);
+    
     setNewComment('');
     setKey(prevKey => prevKey + 1); // Trigger re-fetch
   };
